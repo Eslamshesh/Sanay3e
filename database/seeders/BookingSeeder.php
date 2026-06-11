@@ -32,13 +32,11 @@ class BookingSeeder extends Seeder
                 $client    = $clients->random();
                 $craftsman = $craftsmen->random();
 
-                Booking::factory()
-                    ->{$group['status'] === 'confirmed' ? 'pending' : $group['status']}()
-                    ->create([
-                        'client_id'    => $client->id,
-                        'craftsman_id' => $craftsman->id,
-                        'status'       => $group['status'],
-                    ]);
+              Booking::factory()->create([
+    'client_id'    => $client->id,
+    'craftsman_id' => $craftsman->id,
+    'status'       => $group['status'],
+]);
             }
         }
 

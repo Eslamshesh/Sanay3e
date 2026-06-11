@@ -29,6 +29,7 @@ use App\Http\Controllers\Api\Notification\NotificationController;
 Route::prefix('auth')->group(function () {
 
 
+
     // تسجيل عميل جديد
     Route::post('/register/client', [AuthController::class, 'registerClient']);//finish
 
@@ -361,7 +362,7 @@ Route::middleware(["auth:sanctum","role:admin"])->prefix('admin')->group(functio
         Route::patch('/craftsmen/{id}/toggle-featured', [AdminController::class, 'toggleFeatured']);//finish add/remove craftsman from featured list
 
         // إدارة المستخدمين
-        Route::get('/users', [AdminController::class, 'usersList']);//finish list of all users with pagination
+         Route::get('/users', [AdminController::class, 'usersList']);//finish list of all users with pagination
         Route::patch('/users/{id}/toggle-status', [AdminController::class, 'toggleUserStatus']);//finish block/unblock user
 
         // إدارة الحجوزات
