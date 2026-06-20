@@ -8,7 +8,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Mail;
+use App\Mail\CraftsmanApprovedMail;
+use App\Mail\CraftsmanRejectedMail;
 class AdminCraftsmenController extends Controller
 {
     /**
@@ -84,6 +86,8 @@ $craftsman = Craftsman::findOrFail($id);
             'approved_by' => $request->user('web')->id,
             'approved_at' => now(),
         ]);
+        Mail::to($craftsman->email)
+            ->send(new CraftsmanApprovedMail($craftsman));
 
         return back()->with('success', "تمت الموافقة على {$craftsman->first_name} وتم إرسال بيانات الدخول على إيميله");
     }
@@ -102,7 +106,9 @@ $craftsman = Craftsman::findOrFail($id);
 
         $craftsman = Craftsman::findOrFail($id);
         $craftsman->reject($request->reason, $request->user('web')->id);
-
+$craftsman->refresh();
+Mail::to($craftsman->email)
+            ->send(new CraftsmanRejectedMail($craftsman));
         return back()->with('success', "تم رفض طلب {$craftsman->full_name}");
     }
 

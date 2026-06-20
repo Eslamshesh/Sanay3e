@@ -12,6 +12,11 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Mail\CraftsmanApprovedMail;
+use App\Mail\CraftsmanRejectedMail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 
 class AdminController extends Controller
@@ -147,6 +152,7 @@ class AdminController extends Controller
    public function approveCraftsman(Request $request, int $id): JsonResponse
 {
     $craftsman = Craftsman::findOrFail($id);
+    dd($craftsman->email);
 
     if ($craftsman->status !== 'pending') {
         return response()->json([
@@ -159,13 +165,12 @@ class AdminController extends Controller
             'message' => 'يوجد مستخدم مسجل بنفس الإيميل مسبقاً',
         ], 422);
     }
-
-    $password = 'craftsman123';
+//DB::transaction(function () use ($craftsman, $request) {
 
     $user = User::create([
         'name' => $craftsman->first_name . ' ' . $craftsman->last_name,
         'email' => $craftsman->email,
-        'password' => Hash::make($password),
+        'password' => $craftsman->password,
         'role' => 'craftsman',
         'phone' => $craftsman->phone,
         'is_active' => true,
@@ -176,6 +181,17 @@ class AdminController extends Controller
         'status' => 'approved',
         'approved_by' => $request->user()->id ?? null,
     ]);
+//});
+Log::info('Before craftsman approved mail', [
+    'email' => $craftsman->email
+]);
+   Mail::to($craftsman->email)
+            ->send(new CraftsmanApprovedMail($craftsman));
+// Mail::raw('Test approval email', function ($message) use ($craftsman) {
+//     $message->to($craftsman->email)
+//             ->subject('Test');
+// });
+Log::info('After craftsman approved mail');
 
     return response()->json([
         'message' => "تمت الموافقة على {$craftsman->first_name} وتم إرسال بيانات الدخول على إيميله",
@@ -194,6 +210,10 @@ class AdminController extends Controller
 //$craftsman = Craftsman::pending()->findOrFail($id);
         $craftsman = Craftsman::findOrFail($id);
         $craftsman->reject($request->reason, $request->user()->id);
+$craftsman->refresh();
+Mail::to($craftsman->email)
+            ->send(new CraftsmanRejectedMail($craftsman));
+
 
         return response()->json([
             'message' => "تم رفض طلب {$craftsman->full_name}",
