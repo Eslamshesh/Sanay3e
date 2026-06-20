@@ -61,7 +61,7 @@ body{font-family:'Segoe UI',Tahoma,sans-serif;background:#f3f4f6;margin:0;paddin
 
 
             </p>
-        @endif
+        
     </div>
 
     <div class="footer">
