@@ -221,4 +221,5 @@ if ($validator->fails()) {
 
         return response()->json(['reviews' => $reviews]);
     }
+ 
 }

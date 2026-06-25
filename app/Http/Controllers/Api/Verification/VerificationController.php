@@ -502,9 +502,10 @@ if ($validator->fails()) {
     private function generateAndSendOtp(string $email): void
 {
 
+//    dd($email);
     // إلغاء الأكواد القديمة
 
-    OtpCode::where('email',$email)
+    OtpCode::where('email', $email)
         ->where('used',false)
         ->update([
             'used'=>true
@@ -537,10 +538,18 @@ if ($validator->fails()) {
 
 
 
+    // Mail::to($email)
+    //     ->send(
+    //         new OtpMail($code)
+    //     );
+// Mail::raw('Hello Test', function ($message) use ($email) {
+//     $message->to($email);
+//     $message->subject('Test Mail');
+// });
+
     Mail::to($email)
-        ->send(
-            new OtpMail($code)
-        );
+        ->send(new OtpMail($code));
+
 
 }
 }

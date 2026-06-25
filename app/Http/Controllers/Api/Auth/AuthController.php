@@ -153,7 +153,7 @@ Cache::forget(
 
         'craft_ids.*'=> 'exists:crafts,id',
 
-//        'verified_token'=>'required|string',
+       'verified_token'=>'required|string',
 
         'district'=>'nullable|string',
 
@@ -172,7 +172,21 @@ Cache::forget(
         ],422);
 
     }
+$verifiedEmail = Cache::get(
+    "email_verification:{$request->verified_token}"
+);
 
+if (!$verifiedEmail) {
+    return response()->json([
+        'message' => 'يجب تأكيد البريد الإلكتروني أولاً'
+    ], 422);
+}
+
+if ($verifiedEmail !== $request->email) {
+    return response()->json([
+        'message' => 'البريد الإلكتروني غير مطابق'
+    ], 422);
+}
 
 
     // التحقق من OTP للإيميل
@@ -255,6 +269,9 @@ Cache::forget(
     }
 
 
+Cache::forget(
+    "email_verification:{$request->verified_token}"
+);
 
    // Cache::forget(
     //     "email_verification:{$request->verified_token}"
